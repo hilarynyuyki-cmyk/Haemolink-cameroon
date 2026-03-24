@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>HaemoLink Cameroon — Blood Donation Network</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --r700:#6b0000;--r600:#8b0000;--r500:#b00020;--r400:#cc1a35;
+  --r300:#e04060;--r200:#f09aaa;--r100:#fde8ec;--r50:#fff5f7;
+  --dark:#0c0404;--dark2:#1a0606;--cream:#fffbf9;
+  --muted:#7a3a44;--border:rgba(139,0,0,0.12);
+  --sh:0 8px 32px rgba(176,0,32,.12);
+  --shl:0 20px 60px rgba(176,0,32,.18);
+  --shsm:0 2px 10px rgba(176,0,32,.08);
+  --fh:'Syne',sans-serif;--fb:'Manrope',sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--cream);color:var(--dark);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--r50)}::-webkit-scrollbar-thumb{background:var(--r400);border-radius:2px}
+button,input,select,textarea{font-family:var(--fb)}
+button{cursor:pointer;border:none;background:none}
+input,select,textarea{width:100%}
+a{text-decoration:none;color:inherit}
+
+/* ── KEYFRAMES ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pring{0%,100%{box-shadow:0 0 0 0 rgba(176,0,32,.4)}60%{box-shadow:0 0 0 10px rgba(176,0,32,0)}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes spinCW{to{transform:rotate(360deg)}}
+@keyframes spinCCW{to{transform:rotate(-360deg)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes toastIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:translateX(0)}}
+@keyframes modalIn{from{opacity:0;transform:translateY(-12px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes badgeA{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes badgeB{0%,100%{transform:translateY(-5px)}50%{transform:translateY(5px)}}
+
+/* ── PAGES ── */
+.page{display:none;min-height:100vh;padding-top:68px}
+.page.active{display:block;animation:fadeUp .45s var(--ease)}
+
+/* ── NAVBAR ── */
+.navbar{position:fixed;top:0;left:0;right:0;z-index:900;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;transition:all .3s}
+.navbar.scrolled{background:rgba(255,251,249,.95);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);box-shadow:var(--shsm)}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.logo-icon{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--r400),var(--r700));display:flex;align-items:center;justify-content:center;font-size:18px;animation:pring 2.5s infinite;flex-shrink:0}
+.logo-text{font-family:var(--fh);font-size:20px;font-weight:800;color:var(--r700);letter-spacing:-.02em}
+.logo-text em{color:var(--r300);font-style:normal}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nb{padding:8px 13px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted);transition:all .18s;cursor:pointer;position:relative}
+.nb:hover,.nb.active{background:var(--r100);color:var(--r600)}
+.nb-cta{background:linear-gradient(135deg,var(--r400),var(--r700))!important;color:#fff!important;border-radius:99px!important;padding:9px 22px!important;box-shadow:0 4px 16px rgba(176,0,32,.3)}
+.nb-cta:hover{transform:translateY(-1px)!important;box-shadow:0 8px 24px rgba(176,0,32,.42)!important}
+.npip{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--r400);border:1.5px solid var(--cream);display:none}
+.mob-btn{display:none;width:38px;height:38px;border-radius:9px;border:1.5px solid var(--border);background:#fff;align-items:center;justify-content:center;font-size:18px}
+.mob-menu{display:none;position:fixed;top:68px;left:0;right:0;z-index:850;background:#fff;border-bottom:1px solid var(--border);padding:16px 24px 20px;flex-direction:column;gap:4px;box-shadow:var(--sh)}
+.mob-menu.open{display:flex;animation:fadeUp .3s var(--ease)}
+.mob-nb{padding:12px 16px;border-radius:10px;font-size:15px;font-weight:600;color:var(--dark);text-align:left}
+.mob-nb:hover{background:var(--r50);color:var(--r600)}
+
+/* ── PAGE DOTS ── */
+#pdots{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:600;display:flex;flex-direction:column;gap:7px}
+.pdot{width:6px;height:6px;border-radius:3px;background:var(--r200);cursor:pointer;transition:all .3s;border:none}
+.pdot.active{height:22px;background:var(--r500)}
+
+/* ── TOAST ── */
+#toast-wrap{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.toast{background:#fff;border:1px solid var(--border);border-radius:14px;padding:13px 16px;box-shadow:var(--sh);display:flex;align-items:center;gap:12px;min-width:260px;max-width:340px;animation:toastIn .35s var(--ease);pointer-events:all;transition:opacity .3s,transform .3s}
+.t-icon{font-size:20px;flex-shrink:0}
+.t-title{font-size:13.5px;font-weight:700;color:var(--dark)}
+.t-msg{font-size:12px;color:var(--muted);margin-top:2px}
+.t-x{font-size:17px;color:var(--muted);cursor:pointer;margin-left:auto;flex-shrink:0}
+
+/* ── MODAL ── */
+#modal-bg{position:fixed;inset:0;z-index:2000;background:rgba(12,4,4,.65);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px}
+#modal-bg.open{display:flex;animation:fadeIn .25s}
+.modal-box{background:#fff;border-radius:20px;padding:36px;width:100%;max-width:480px;position:relative;animation:modalIn .35s var(--ease);max-height:88vh;overflow-y:auto}
+.modal-x{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:8px;background:var(--r100);color:var(--r600);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
+.modal-x:hover{background:var(--r400);color:#fff}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:10px;font-weight:700;cursor:pointer;border:none;transition:all .2s;white-space:nowrap}
+.btn-p{background:linear-gradient(135deg,var(--r400),var(--r700));color:#fff;box-shadow:0 4px 18px rgba(176,0,32,.28)}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(176,0,32,.4)}
+.btn-s{background:#fff;color:var(--r600);border:1.5px solid var(--border)}
+.btn-s:hover{border-color:var(--r300);background:var(--r50);transform:translateY(-1px)}
+.btn-d{background:var(--dark);color:#fff}
+.btn-d:hover{transform:translateY(-1px)}
+.btn-g{background:transparent;color:var(--r500);border:1.5px solid var(--r200)}
+.btn-g:hover{background:var(--r50)}
+.btn-lg{padding:13px 28px;font-size:15px}
+.btn-md{padding:10px 20px;font-size:14px}
+.btn-sm{padding:7px 14px;font-size:13px;border-radius:8px}
+.btn-fw{width:100%}
+
+/* ── FORMS ── */
+.field{display:flex;flex-direction:column;gap:7px}
+.flbl{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.finput{padding:12px 16px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-size:14px;color:var(--dark);outline:none;transition:border .2s,box-shadow .2s}
+.finput:focus{border-color:var(--r400);box-shadow:0 0 0 3px rgba(176,0,32,.09)}
+.finput::placeholder{color:rgba(122,58,68,.35)}
+.fsel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='%238b0000'%3E%3Cpath d='M6 8L0 0h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;cursor:pointer}
+textarea.finput{resize:vertical;min-height:80px}
+
+/* ── CARDS ── */
+.card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shsm)}
+.ch{transition:transform .25s var(--ease),box-shadow .25s,border-color .25s}
+.ch:hover{transform:translateY(-4px);box-shadow:var(--shl);border-color:var(--r200)}
+.cp{padding:28px}.cpl{padding:36px}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;border-radius:99px;font-weight:700;font-size:11.5px;padding:4px 12px}
+.b-red{background:var(--r100);color:var(--r600)}
+.b-crit{background:#fff0f0;color:#aa0000;border:1px solid rgba(180,0,0,.15)}
+.b-mod{background:#fff8e0;color:#905000;border:1px solid rgba(180,100,0,.15)}
+.b-stab{background:#efffee;color:#005820;border:1px solid rgba(0,100,30,.15)}
+.b-grn{background:#e8fff0;color:#005820}
+.b-blue{background:#e8f0ff;color:#003db0}
+.b-sm{padding:3px 9px;font-size:11px}
+
+/* ── BLOOD CHIP ── */
+.btc{font-family:var(--fh);font-weight:800;color:var(--r600);background:var(--r50);border:2px solid var(--r200);border-radius:9px;padding:3px 10px;display:inline-block;font-size:21px;line-height:1.3}
+.btc-sm{font-size:14px;padding:2px 8px}
+
+/* ── SECTION ── */
+.stag{display:inline-flex;align-items:center;gap:7px;background:var(--r100);color:var(--r600);border-radius:99px;padding:5px 15px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px}
+.stag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--r400);animation:blink 1.8s infinite}
+.stitle{font-family:var(--fh);font-size:clamp(28px,4vw,46px);font-weight:800;line-height:1.08;letter-spacing:-.03em;color:var(--dark);margin-bottom:12px}
+.ssub{font-size:16px;color:var(--muted);line-height:1.75;max-width:520px}
+.section{padding:80px}
+
+/* ── STAT BAR ── */
+.stat-bar{display:flex;gap:36px;flex-wrap:wrap}
+.snum{font-family:var(--fh);font-size:36px;font-weight:800;color:var(--r400);line-height:1}
+.slbl{font-size:11.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-top:4px}
+
+/* ── HERO DROP ── */
+.drop-wrap{position:relative;width:340px;height:400px}
+.drop-ring{position:absolute;top:50%;left:50%;border:1.5px dashed rgba(176,0,32,.14);border-radius:50%;transform:translate(-50%,-50%)}
+.dr1{width:290px;height:290px;animation:spinCW 24s linear infinite}
+.dr2{width:360px;height:360px;animation:spinCCW 36s linear infinite}
+.drop-body{position:absolute;top:50%;left:50%;transform:translate(-50%,-56%);width:208px;height:268px;background:linear-gradient(160deg,var(--r300),var(--r700));border-radius:50% 50% 50% 50%/62% 62% 38% 38%;display:flex;align-items:center;justify-content:center;box-shadow:0 22px 60px rgba(107,0,0,.38),inset 0 0 0 1px rgba(255,255,255,.1);animation:floatY 4s ease-in-out infinite}
+.drop-shine{position:absolute;top:20%;left:27%;width:30%;height:30%;background:rgba(255,255,255,.22);border-radius:50%;transform:rotate(-32deg)}
+.drop-type{font-family:var(--fh);font-size:54px;font-weight:800;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.18)}
+.dbadge{position:absolute;background:#fff;border-radius:13px;padding:9px 15px;box-shadow:var(--sh);font-size:12.5px;font-weight:700;color:var(--r700);display:flex;align-items:center;gap:8px;border:1px solid var(--border);white-space:nowrap}
+.dba{top:8%;right:-2%;animation:badgeA 3.5s ease-in-out infinite}
+.dbb{bottom:14%;left:-8%;animation:badgeB 3s ease-in-out infinite}
+.dbc{top:52%;right:-14%;animation:badgeA 4.2s .5s ease-in-out infinite}
+.bpip{width:8px;height:8px;border-radius:50%;background:var(--r400);animation:blink 1.4s infinite;flex-shrink:0}
+
+/* ── BLOOD TYPE GRID ── */
+.bt-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:13px}
+.bt-cell{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:20px 10px;text-align:center;cursor:pointer;transition:all .22s}
+.bt-cell:hover,.bt-cell.sel{background:var(--r500);border-color:var(--r300);transform:translateY(-4px);box-shadow:0 12px 28px rgba(176,0,32,.42)}
+.bt-type{font-family:var(--fh);font-size:24px;font-weight:800;color:#fff;margin-bottom:5px}
+.bt-cnt{font-size:10.5px;color:rgba(255,255,255,.45)}
+.bt-compat{font-size:9.5px;color:rgba(255,255,255,.28);margin-top:3px}
+.bt-info{margin-top:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:18px 22px;font-size:13.5px;color:rgba(255,255,255,.7);line-height:1.7}
+
+/* ── AUTH ── */
+.auth-wrap{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
+.auth-left{background:linear-gradient(160deg,var(--r700),#1e0000);padding:60px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+.auth-dots{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.05) 1px,transparent 1px);background-size:26px 26px}
+.auth-title{font-family:var(--fh);font-size:44px;font-weight:800;color:#fff;line-height:1.05;letter-spacing:-.03em;margin-bottom:18px}
+.auth-sub{font-size:15px;color:rgba(255,255,255,.65);line-height:1.75}
+.auth-right{display:flex;align-items:center;justify-content:center;padding:60px;background:#fff;overflow-y:auto}
+.auth-form{width:100%;max-width:420px}
+.form-title{font-family:var(--fh);font-size:30px;font-weight:800;color:var(--dark);margin-bottom:6px}
+.form-sub{font-size:14px;color:var(--muted);margin-bottom:32px}
+.form-sub a{color:var(--r500);font-weight:700;cursor:pointer}
+
+/* ── ROLE PICKER ── */
+.role-picker{display:flex;gap:10px}
+.ropt{flex:1;padding:14px 10px;border-radius:12px;border:1.5px solid var(--border);text-align:center;cursor:pointer;transition:all .2s;font-size:13px;font-weight:700;color:var(--muted);background:#fff}
+.ropt:hover{border-color:var(--r300);background:var(--r50);color:var(--r600)}
+.ropt.active{border-color:var(--r500);background:var(--r50);color:var(--r600)}
+.ropt-icon{font-size:24px;margin-bottom:6px}
+
+/* ── BTP ── */
+.btp{display:flex;flex-wrap:wrap;gap:8px}
+.btp-btn{padding:9px 14px;border-radius:9px;border:1.5px solid var(--border);font-family:var(--fh);font-size:15px;font-weight:800;color:var(--r700);cursor:pointer;transition:all .18s;background:#fff}
+.btp-btn:hover{border-color:var(--r400);background:var(--r50)}
+.btp-btn.active{background:var(--r500);color:#fff;border-color:var(--r500)}
+
+/* ── PROFILE ── */
+.prof-hero{background:linear-gradient(135deg,var(--r700),#1e0000);padding:56px 80px;color:#fff;display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.prof-av{width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.18);border:3px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:36px;font-weight:800;color:#fff;flex-shrink:0}
+.prof-name{font-family:var(--fh);font-size:30px;font-weight:800;letter-spacing:-.02em;margin-bottom:5px}
+.ptag{background:rgba(255,255,255,.14);border-radius:99px;padding:4px 13px;font-size:12px;font-weight:700}
+.ptags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.prow{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(139,0,0,.06)}
+.prow:last-child{border-bottom:none}
+.prow-l{font-size:13px;color:var(--muted)}
+.prow-v{font-size:14px;font-weight:700;color:var(--dark)}
+
+/* ── TOGGLE ── */
+.ttrack{width:42px;height:24px;background:var(--r500);border-radius:99px;position:relative;cursor:pointer;transition:background .3s;flex-shrink:0;display:block;border:none}
+.ttrack.off{background:#ccc}
+.tthumb{position:absolute;top:3px;right:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:all .3s;pointer-events:none}
+.ttrack.off .tthumb{right:auto;left:3px}
+
+/* ── DONOR CARDS ── */
+.dcard{position:relative;overflow:hidden}
+.dcard::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%}
+.dcard.critical::before{background:var(--r400);animation:blink 1s infinite}
+.dcard.moderate::before{background:#e8a000}
+.dcard.stable::before{background:#00882a}
+.d-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--r300),var(--r700));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:18px;font-weight:800;color:#fff;flex-shrink:0}
+
+/* ── MAP ── */
+.map-box{background:linear-gradient(135deg,var(--dark2),#200808);border-radius:18px;height:360px;position:relative;overflow:hidden;border:1px solid rgba(139,0,0,.25)}
+.map-lines{position:absolute;inset:0;background-image:linear-gradient(rgba(176,0,32,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(176,0,32,.07) 1px,transparent 1px);background-size:36px 36px}
+.mpin{position:absolute;width:30px;height:30px;background:var(--r500);border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 4px 14px rgba(176,0,32,.5);cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center}
+.mpin:hover{transform:rotate(-45deg) scale(1.2)}
+.mpinl{transform:rotate(45deg);font-family:var(--fh);font-size:9px;font-weight:800;color:#fff}
+.map-legend{position:absolute;bottom:16px;right:16px;background:rgba(255,251,249,.95);border-radius:11px;padding:13px;border:1px solid var(--border)}
+
+/* ── APPOINTMENT ── */
+.appt-step{display:flex;gap:16px;align-items:flex-start;padding:20px 0;border-bottom:1px solid var(--border)}
+.appt-step:last-of-type{border-bottom:none}
+.astep-ic{width:44px;height:44px;border-radius:12px;background:var(--r100);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.astep-t{font-weight:800;font-size:15px;color:var(--dark);margin-bottom:12px}
+.dt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.dt-btn{padding:14px 8px;text-align:center;cursor:pointer;border:1.5px solid var(--border);border-radius:12px;background:#fff;transition:all .18s}
+.dt-btn:hover{border-color:var(--r300);background:var(--r50)}
+.dt-btn.active{border-color:var(--r400);background:var(--r50)}
+.dt-btn .di{font-size:22px;margin-bottom:6px}
+.dt-btn .dl{font-size:11.5px;font-weight:700;color:var(--muted)}
+.dt-btn.active .dl{color:var(--r600)}
+
+/* ── HISTORY TABLE ── */
+.htbl{width:100%;border-collapse:collapse}
+.htbl th{text-align:left;padding:11px 16px;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;background:#fdf5f5;border-bottom:1px solid var(--border)}
+.htbl td{padding:13px 16px;font-size:13.5px;border-bottom:1px solid rgba(139,0,0,.05)}
+.htbl tr:hover td{background:#fdf9f9}
+
+/* ── NOTIFICATIONS ── */
+.ni{display:flex;gap:14px;align-items:flex-start;padding:18px 20px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border)}
+.ni:hover,.ni.unread{background:var(--r50)}
+.ni:last-child{border-bottom:none}
+.ni-ic{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.ni-urg{background:#fff0f0}.ni-inf{background:#f0f5ff}.ni-suc{background:#f0fff5}.ni-sys{background:var(--r100)}
+.ni-title{font-size:14px;font-weight:700;color:var(--dark);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.ni-pip{width:7px;height:7px;border-radius:50%;background:var(--r400);flex-shrink:0}
+.ni-msg{font-size:13px;color:var(--muted);line-height:1.6}
+.ni-time{font-size:11.5px;color:var(--muted);white-space:nowrap;flex-shrink:0}
+.ntabs{display:flex;gap:4px;border-bottom:1px solid var(--border)}
+.ntab{padding:10px 16px;font-size:13.5px;font-weight:600;color:var(--muted);border-radius:9px 9px 0 0;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .18s;margin-bottom:-1px}
+.ntab:hover{color:var(--r600);background:var(--r50)}
+.ntab.active{color:var(--r600);border-bottom-color:var(--r500);background:var(--r50)}
+
+/* ── FOOTER ── */
+.footer{background:var(--dark);padding:56px 80px 28px;color:rgba(255,255,255,.55)}
+.fhotline{background:var(--r700);border-radius:13px;padding:16px 24px;display:flex;align-items:center;gap:14px;margin-bottom:36px}
+.fh-num{font-family:var(--fh);font-size:21px;font-weight:800;color:#fff}
+.fh-lbl{font-size:11px;color:rgba(255,255,255,.6);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+.fgrid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:44px;margin-bottom:44px}
+.fbrand{font-family:var(--fh);font-size:22px;font-weight:800;color:#fff;margin-bottom:12px}
+.fbrand em{color:var(--r300);font-style:normal}
+.fcol h4{font-size:12.5px;font-weight:800;color:#fff;margin-bottom:14px;text-transform:uppercase;letter-spacing:.06em}
+.fcol a{display:block;font-size:13px;margin-bottom:9px;color:rgba(255,255,255,.42);cursor:pointer;transition:.18s}
+.fcol a:hover{color:var(--r300)}
+.fbot{border-top:1px solid rgba(255,255,255,.07);padding-top:22px;display:flex;justify-content:space-between;font-size:12.5px;flex-wrap:wrap;gap:8px}
+
+/* ── LAYOUT HELPERS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.s2{grid-column:1/-1}
+.flex{display:flex}.fc{flex-direction:column}
+.aic{align-items:center}.jb{justify-content:space-between}
+.g8{gap:8px}.g10{gap:10px}.g12{gap:12px}.g14{gap:14px}.g16{gap:16px}.g20{gap:20px}.g24{gap:24px}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}.mt24{margin-top:24px}
+.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}.mb24{margin-bottom:24px}.mb32{margin-bottom:32px}
+.tc{text-align:center}.fw{width:100%}
+
+/* ── RESPONSIVE ── */
+@media(max-width:920px){
+  .nav-links,#pdots{display:none}
+  .mob-btn{display:flex}
+  .hero-grid{grid-template-columns:1fr!important;padding:40px 24px!important;text-align:center}
+  .drop-wrap{display:none}
+  .section{padding:50px 24px}
+  .bt-grid{grid-template-columns:repeat(4,1fr)}
+  .auth-wrap{grid-template-columns:1fr}
+  .auth-left{display:none}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .dt-grid{grid-template-columns:repeat(2,1fr)}
+  .fgrid{grid-template-columns:1fr 1fr;gap:24px}
+  .footer{padding:40px 24px 24px}
+  .prof-hero{padding:40px 24px;flex-direction:column;text-align:center}
+  .stat-bar{justify-content:center}
+  .prof-body{grid-template-columns:1fr!important}
+  .hosp-layout{grid-template-columns:1fr!important}
+  .appt-layout{grid-template-columns:1fr!important}
+  .donor-layout{grid-template-columns:1fr!important}
+}
+@media(max-width:560px){
+  .bt-grid{grid-template-columns:repeat(4,1fr)}
+  .fgrid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ NAVBAR ═══════════ -->
+<nav class="navbar" id="navbar">
+  <div class="logo" onclick="nav('home')">
+    <div class="logo-icon">🩸</div>
+    <span class="logo-text">Haemo<em>Link</em> <span style="font-size:13px;opacity:.6">Cameroon</span></span>
+  </div>
+  <div class="nav-links">
+    <button class="nb active" id="nb-home"         onclick="nav('home')">Home</button>
+    <button class="nb"        id="nb-find"         onclick="nav('find')">Find Blood</button>
+    <button class="nb"        id="nb-donor"        onclick="nav('donor')">Donor Registration</button>
+    <button class="nb"        id="nb-hospital"     onclick="nav('hospital')">Hospitals</button>
+    <button class="nb"        id="nb-appointment"  onclick="nav('appointment')">Appointments</button>
+    <button class="nb"        id="nb-notif"        onclick="nav('notif')" style="position:relative">Notifications<span class="npip" id="npip"></span></button>
+    <button class="nb nb-cta" id="nb-register"     onclick="nav('register')">Get Started</button>
+  </div>
+  <button class="mob-btn" onclick="toggleMob()">☰</button>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mob-menu" id="mob-menu">
+  <button class="mob-nb" onclick="nav('home');toggleMob()">Home</button>
+  <button class="mob-nb" onclick="nav('find');toggleMob()">Find Blood</button>
+  <button class="mob-nb" onclick="nav('donor');toggleMob()">Donor Registration</button>
+  <button class="mob-nb" onclick="nav('hospital');toggleMob()">Hospitals</button>
+  <button class="mob-nb" onclick="nav('appointment');toggleMob()">Appointments</button>
+  <button class="mob-nb" onclick="nav('notif');toggleMob()">Notifications</button>
+  <button class="mob-nb" onclick="nav('profile');toggleMob()">My Profile</button>
+  <div class="flex g10" style="margin-top:8px">
+    <button class="btn btn-s btn-md fw" onclick="nav('login');toggleMob()">Login</button>
+    <button class="btn btn-p btn-md fw" onclick="nav('register');toggleMob()">Register</button>
+  </div>
+</div>
+
+<!-- Page dots -->
+<div id="pdots">
+  <button class="pdot active" title="Home"          onclick="nav('home')"></button>
+  <button class="pdot"        title="Find Blood"    onclick="nav('find')"></button>
+  <button class="pdot"        title="Donor Reg"     onclick="nav('donor')"></button>
+  <button class="pdot"        title="Hospitals"     onclick="nav('hospital')"></button>
+  <button class="pdot"        title="Appointments"  onclick="nav('appointment')"></button>
+  <button class="pdot"        title="Notifications" onclick="nav('notif')"></button>
+  <button class="pdot"        title="Profile"       onclick="nav('profile')"></button>
+</div>
+
+<div id="toast-wrap"></div>
+
+<!-- Modal -->
+<div id="modal-bg" onclick="bgClick(event)">
+  <div class="modal-box">
+    <button class="modal-x" onclick="closeModal()">✕</button>
+    <div id="modal-cnt"></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PAGE 1 — HOME
+═══════════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- HERO -->
+  <div class="hero-grid" style="display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:60px;padding:60px 80px;min-height:calc(100vh - 68px);position:relative;overflow:hidden">
+    <div style="position:absolute;top:-120px;right:-80px;width:640px;height:640px;border-radius:50%;background:radial-gradient(circle,rgba(176,0,32,.07),transparent 70%);pointer-events:none"></div>
+    <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.5;pointer-events:none"><defs><pattern id="gg" width="38" height="38" patternUnits="userSpaceOnUse"><path d="M38 0L0 0 0 38" fill="none" stroke="rgba(176,0,32,.05)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#gg)"/></svg>
+
+    <div style="position:relative;z-index:1">
+      <div class="stag">🩸 Réseau de Dons Actif / Live Donation Network</div>
+      <h1 style="font-family:var(--fh);font-size:clamp(42px,5vw,76px);font-weight:800;line-height:1;letter-spacing:-.04em;color:var(--dark);margin-bottom:22px">
+        Chaque Goutte<br>
+        <span style="color:var(--r400);position:relative;display:inline-block">Sauve des Vies
+          <span style="position:absolute;bottom:-5px;left:0;right:0;height:5px;background:var(--r200);border-radius:3px;display:block"></span>
+        </span>
+      </h1>
+      <p style="font-size:17px;color:var(--muted);line-height:1.75;max-width:480px;margin-bottom:36px">Connect blood donors with hospitals and patients across Cameroon in real-time. Smart matching, instant alerts, saving lives from Yaoundé to Douala.</p>
+      <div class="flex g14 mb32" style="flex-wrap:wrap">
+        <button class="btn btn-p btn-lg" onclick="nav('donor')">🩸 Register as Donor</button>
+        <button class="btn btn-s btn-lg" onclick="nav('find')">Find Blood →</button>
+      </div>
+      <div class="stat-bar">
+        <div><div class="snum" id="cnt-d">0</div><div class="slbl">Active Donors</div></div>
+        <div><div class="snum" id="cnt-l">0</div><div class="slbl">Lives Saved</div></div>
+        <div><div class="snum" id="cnt-h">0</div><div class="slbl">Hospitals</div></div>
+      </div>
+    </div>
+
+    <div class="flex" style="justify-content:center;position:relative;z-index:1">
+      <div class="drop-wrap">
+        <div class="drop-ring dr1"></div>
+        <div class="drop-ring dr2"></div>
+        <div class="drop-body">
+          <div class="drop-shine"></div>
+          <span class="drop-type">O+</span>
+        </div>
+        <div class="dbadge dba"><div class="bpip"></div>247 donors online</div>
+        <div class="dbadge dbb">✅ 12 matches today</div>
+        <div class="dbadge dbc">🚨 AB− needed urgently</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div style="background:#fff;padding:80px">
+    <div class="tc mb32" style="max-width:660px;margin-left:auto;margin-right:auto">
+      <div class="stag">About HaemoLink Cameroon</div>
+      <h2 class="stitle">Cameroon's Premier Blood Donation Network</h2>
+      <p style="font-size:16px;color:var(--muted);line-height:1.75">HaemoLink bridges the gap between blood donors and those in urgent need across Cameroon — real-time matching, instant notifications, seamless scheduling in both English and French regions.</p>
+    </div>
+    <div class="g4">
+      <div class="card ch cp tc"><div style="width:52px;height:52px;border-radius:14px;background:var(--r100);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px">⚡</div><div style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--dark);margin-bottom:8px">Real-Time Matching</div><div style="font-size:13.5px;color:var(--muted);line-height:1.6">Smart AI pairs compatible donors with urgent requests instantly across all regions</div></div>
+      <div class="card ch cp tc"><div style="width:52px;height:52px;border-radius:14px;background:var(--r100);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px">🔒</div><div style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--dark);margin-bottom:8px">Verified Donors</div><div style="font-size:13.5px;color:var(--muted);line-height:1.6">All donors are health-screened and identity verified by our medical team</div></div>
+      <div class="card ch cp tc"><div style="width:52px;height:52px;border-radius:14px;background:var(--r100);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px">📍</div><div style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--dark);margin-bottom:8px">Location-Based</div><div style="font-size:13.5px;color:var(--muted);line-height:1.6">Find donors and hospitals near you in Yaoundé, Douala, Bafoussam and beyond</div></div>
+      <div class="card ch cp tc"><div style="width:52px;height:52px;border-radius:14px;background:var(--r100);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px">❤️</div><div style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--dark);margin-bottom:8px">Save 3 Lives</div><div style="font-size:13.5px;color:var(--muted);line-height:1.6">A single whole blood donation can save up to three lives in Cameroon</div></div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="section">
+    <div class="stag">Process</div>
+    <h2 class="stitle">How HaemoLink Works</h2>
+    <p class="ssub mb32">Four simple steps connect donors with those in critical need across Cameroon.</p>
+    <div class="g4">
+      <div class="card ch" style="padding:28px 22px;position:relative"><div style="font-family:var(--fh);font-size:54px;font-weight:800;color:var(--r100);line-height:1;margin-bottom:16px">01</div><div style="font-size:26px;margin-bottom:12px">📝</div><div style="font-family:var(--fh);font-size:17px;font-weight:700;margin-bottom:8px">Register / S'inscrire</div><div style="font-size:13.5px;color:var(--muted);line-height:1.6">Create your donor or recipient profile in under 2 minutes</div><div style="position:absolute;top:42px;right:-13px;color:var(--r200);font-size:20px">›</div></div>
+      <div class="card ch" style="padding:28px 22px;position:relative"><div style="font-family:var(--fh);font-size:54px;font-weight:800;color:var(--r100);line-height:1;margin-bottom:16px">02</div><div style="font-size:26px;margin-bottom:12px">🔍</div><div style="font-family:var(--fh);font-size:17px;font-weight:700;margin-bottom:8px">Match / Correspondre</div><div style="font-size:13.5px;color:var(--muted);line-height:1.6">Our engine instantly finds compatible donors near you</div><div style="position:absolute;top:42px;right:-13px;color:var(--r200);font-size:20px">›</div></div>
+      <div class="card ch" style="padding:28px 22px;position:relative"><div style="font-family:var(--fh);font-size:54px;font-weight:800;color:var(--r100);line-height:1;margin-bottom:16px">03</div><div style="font-size:26px;margin-bottom:12px">🔔</div><div style="font-family:var(--fh);font-size:17px;font-weight:700;margin-bottom:8px">Connect / Se connecter</div><div style="font-size:13.5px;color:var(--muted);line-height:1.6">Real-time alerts connect donors with hospitals and patients</div><div style="position:absolute;top:42px;right:-13px;color:var(--r200);font-size:20px">›</div></div>
+      <div class="card ch" style="padding:28px 22px"><div style="font-family:var(--fh);font-size:54px;font-weight:800;color:var(--r100);line-height:1;margin-bottom:16px">04</div><div style="font-size:26px;margin-bottom:12px">❤️</div><div style="font-family:var(--fh);font-size:17px;font-weight:700;margin-bottom:8px">Donate / Donner</div><div style="font-size:13.5px;color:var(--muted);line-height:1.6">Book your appointment, donate, and track your life-saving impact</div></div>
+    </div>
+  </div>
+
+  <!-- BLOOD TYPES -->
+  <div style="background:var(--dark);border-radius:26px;margin:0 40px 80px;padding:72px 56px">
+    <div class="stag" style="background:rgba(176,0,32,.3);color:var(--r200)">Compatibility Guide</div>
+    <h2 class="stitle" style="color:#fff">Blood Type Compatibility</h2>
+    <p style="font-size:16px;color:rgba(255,255,255,.45);line-height:1.75;max-width:500px;margin-bottom:40px">Click any blood type to see who they can donate to and current donor availability across Cameroon.</p>
+    <div class="bt-grid">
+      <div class="bt-cell sel" onclick="selBT(this,'A+')"> <div class="bt-type">A+</div> <div class="bt-cnt">840 donors</div><div class="bt-compat">A+, AB+</div></div>
+      <div class="bt-cell"    onclick="selBT(this,'A−')"> <div class="bt-type">A−</div> <div class="bt-cnt">210 donors</div><div class="bt-compat">A±, AB±</div></div>
+      <div class="bt-cell"    onclick="selBT(this,'B+')"> <div class="bt-type">B+</div> <div class="bt-cnt">650 donors</div><div class="bt-compat">B+, AB+</div></div>
+      <div class="bt-cell"    onclick="selBT(this,'B−')"> <div class="bt-type">B−</div> <div class="bt-cnt">120 donors</div><div class="bt-compat">B±, AB±</div></div>
+      <div class="bt-cell"    onclick="selBT(this,'AB+')"><div class="bt-type">AB+</div><div class="bt-cnt">390 donors</div><div class="bt-compat">AB+ only</div></div>
+      <div class="bt-cell"    onclick="selBT(this,'AB−')"><div class="bt-type">AB−</div><div class="bt-cnt">54 donors</div> <div class="bt-compat">AB±</div></div>
+      <div class="bt-cell"    onclick="selBT(this,'O+')"> <div class="bt-type">O+</div> <div class="bt-cnt">1,320 donors</div><div class="bt-compat">All positive</div></div>
+      <div class="bt-cell"    onclick="selBT(this,'O−')"> <div class="bt-type">O−</div> <div class="bt-cnt">280 donors</div><div class="bt-compat">Universal</div></div>
+    </div>
+    <div class="bt-info" id="bt-info">
+      <strong style="color:#fff">A+</strong> donors give to <strong style="color:var(--r300)">A+ and AB+</strong> recipients. With 840 active donors across Cameroon, A+ is one of the most common types in our network.
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div style="margin:0 40px 80px;background:linear-gradient(135deg,var(--r600),#1e0000);border-radius:24px;padding:76px 56px;text-align:center;position:relative;overflow:hidden">
+    <div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.045) 1px,transparent 1px);background-size:26px 26px"></div>
+    <div style="position:relative;z-index:1">
+      <h2 style="font-family:var(--fh);font-size:clamp(28px,4vw,50px);font-weight:800;color:#fff;letter-spacing:-.03em;margin-bottom:16px">Every 2 Seconds,<br>Someone in Cameroon Needs Blood</h2>
+      <p style="font-size:16px;color:rgba(255,255,255,.7);max-width:460px;margin:0 auto 34px;line-height:1.75">Be the reason someone's family stays together. One donation can save three lives.</p>
+      <button class="btn btn-lg" onclick="nav('register')" style="background:#fff;color:var(--r700);font-size:16px;padding:15px 38px;box-shadow:0 8px 28px rgba(0,0,0,.18)">🩸 Become a Donor Today</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="fhotline">
+      <span style="font-size:28px">🚨</span>
+      <div><div class="fh-lbl">Emergency Blood Hotline — Cameroon</div><div class="fh-num">+237 222-224-240 · 1510 (Free)</div></div>
+    </div>
+    <div class="fgrid">
+      <div><div class="fbrand">Haemo<em>Link</em></div><p style="font-size:13.5px;line-height:1.75;max-width:300px">Connecting blood donors with hospitals and patients across Cameroon. Serving all 10 regions.</p></div>
+      <div class="fcol"><h4>Platform</h4><a onclick="nav('find')">Find Blood</a><a onclick="nav('donor')">Register Donor</a><a onclick="nav('hospital')">Hospitals</a><a onclick="nav('appointment')">Appointments</a></div>
+      <div class="fcol"><h4>Account</h4><a onclick="nav('register')">Register</a><a onclick="nav('login')">Login</a><a onclick="nav('profile')">My Profile</a></div>
+      <div class="fcol"><h4>Support</h4><a>Help Centre</a><a>Privacy Policy</a><a>Terms of Service</a><a>Contact Us</a></div>
+    </div>
+    <div class="fbot"><span>© 2026 HaemoLink Cameroon. All rights reserved.</span><span>Built to save lives ❤️ 🇨🇲</span></div>
+  </footer>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PAGE 2 — REGISTER
+═══════════════════════════════════════ -->
+<div class="page" id="page-register">
+  <div class="auth-wrap">
+    <div class="auth-left">
+      <div class="auth-dots"></div>
+      <div style="position:relative;z-index:1">
+        <div style="font-size:44px;margin-bottom:16px">🩸</div>
+        <h1 class="auth-title">Join the<br>Life-Saving<br>Network</h1>
+        <p class="auth-sub">Register as a donor, recipient or hospital in under 2 minutes and start saving lives across Cameroon today.</p>
+        <div class="flex g14" style="margin-top:36px;flex-wrap:wrap">
+          <div style="background:rgba(255,255,255,.12);border-radius:13px;padding:15px 18px"><div style="font-family:var(--fh);font-size:22px;font-weight:800;color:#fff">3,864+</div><div style="font-size:11.5px;color:rgba(255,255,255,.55)">Active Donors</div></div>
+          <div style="background:rgba(255,255,255,.12);border-radius:13px;padding:15px 18px"><div style="font-family:var(--fh);font-size:22px;font-weight:800;color:#fff">9,200+</div><div style="font-size:11.5px;color:rgba(255,255,255,.55)">Lives Saved</div></div>
+          <div style="background:rgba(255,255,255,.12);border-radius:13px;padding:15px 18px"><div style="font-family:var(--fh);font-size:22px;font-weight:800;color:#fff">48</div><div style="font-size:11.5px;color:rgba(255,255,255,.55)">Partner Hospitals</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="auth-right">
+      <div class="auth-form">
+        <h2 class="form-title">Create Account</h2>
+        <p class="form-sub">Already have one? <a onclick="nav('login')">Sign in here</a></p>
+        <div class="field mb20">
+          <div class="flbl">I am registering as</div>
+          <div class="role-picker" id="rp-reg">
+            <div class="ropt active" onclick="pickRole('rp-reg',this)"><div class="ropt-icon">❤️</div>Donor</div>
+            <div class="ropt" onclick="pickRole('rp-reg',this)"><div class="ropt-icon">🩸</div>Recipient</div>
+            <div class="ropt" onclick="pickRole('rp-reg',this)"><div class="ropt-icon">🏥</div>Hospital</div>
+          </div>
+        </div>
+        <div class="flex fc g16">
+          <div class="field"><div class="flbl">Full Name</div><input class="finput" id="reg-name" type="text" placeholder="Your full name"/></div>
+          <div class="field"><div class="flbl">Email Address</div><input class="finput" id="reg-email" type="email" placeholder="you@email.com"/></div>
+          <div class="field"><div class="flbl">Password</div><input class="finput" id="reg-pass" type="password" placeholder="Min. 6 characters"/></div>
+          <div class="field"><div class="flbl">Phone Number</div><input class="finput" type="tel" placeholder="+237 6XX XXX XXX"/></div>
+          <div class="field" id="reg-bt-wrap">
+            <div class="flbl">Blood Type</div>
+            <div class="btp" id="reg-btp">
+              <button class="btp-btn active" onclick="pickBTP('reg-btp',this)">A+</button>
+              <button class="btp-btn" onclick="pickBTP('reg-btp',this)">A−</button>
+              <button class="btp-btn" onclick="pickBTP('reg-btp',this)">B+</button>
+              <button class="btp-btn" onclick="pickBTP('reg-btp',this)">B−</button>
+              <button class="btp-btn" onclick="pickBTP('reg-btp',this)">AB+</button>
+              <button class="btp-btn" onclick="pickBTP('reg-btp',this)">AB−</button>
+              <button class="btp-btn" onclick="pickBTP('reg-btp',this)">O+</button>
+              <button class="btp-btn" onclick="pickBTP('reg-btp',this)">O−</button>
+            </div>
+          </div>
+          <div class="field"><div class="flbl">City / Ville</div><input class="finput" type="text" placeholder="e.g. Yaoundé, Douala, Bafoussam…"/></div>
+          <button class="btn btn-p btn-lg btn-fw mt8" onclick="doRegister()">Create Account →</button>
+        </div>
+        <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:14px">By registering you agree to our <a style="color:var(--r500)">Terms of Service</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PAGE 3 — LOGIN
+═══════════════════════════════════════ -->
+<div class="page" id="page-login">
+  <div class="auth-wrap">
+    <div class="auth-left">
+      <div class="auth-dots"></div>
+      <div style="position:relative;z-index:1">
+        <div style="font-size:44px;margin-bottom:16px">👋</div>
+        <h1 class="auth-title">Welcome<br>Back to<br>HaemoLink</h1>
+        <p class="auth-sub">Sign in to manage your profile, respond to urgent requests and track your life-saving impact across Cameroon.</p>
+        <div style="margin-top:36px;background:rgba(255,255,255,.1);border-radius:13px;padding:18px 20px;border:1px solid rgba(255,255,255,.12)">
+          <div style="font-size:11px;color:rgba(255,255,255,.55);font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">🔐 Demo Access</div>
+          <div style="font-size:13.5px;color:rgba(255,255,255,.85);margin-bottom:4px">Email: <strong>admin@haemolink.cm</strong></div>
+          <div style="font-size:13.5px;color:rgba(255,255,255,.85)">Password: <strong>password</strong></div>
+        </div>
+      </div>
+    </div>
+    <div class="auth-right">
+      <div class="auth-form">
+        <h2 class="form-title">Sign In</h2>
+        <p class="form-sub">Don't have an account? <a onclick="nav('register')">Register here</a></p>
+        <div class="flex fc g18" style="gap:18px">
+          <div class="field"><div class="flbl">Email Address</div><input class="finput" id="login-email" type="email" placeholder="you@email.com"/></div>
+          <div class="field">
+            <div class="flex jb aic" style="margin-bottom:8px"><div class="flbl" style="margin:0">Password</div><a style="font-size:12px;color:var(--r500);cursor:pointer;font-weight:600">Forgot password?</a></div>
+            <input class="finput" id="login-pass" type="password" placeholder="••••••••"/>
+          </div>
+          <label class="flex aic g10" style="cursor:pointer;font-size:13.5px;color:var(--muted)"><input type="checkbox" style="width:16px;height:16px;accent-color:var(--r500)"/> Remember me for 30 days</label>
+          <button class="btn btn-p btn-lg btn-fw" onclick="doLogin()">Sign In →</button>
+          <div class="tc" style="font-size:13px;color:var(--muted)">— or continue with —</div>
+          <div class="g2" style="gap:12px">
+            <button class="btn btn-s btn-md" onclick="toast('🔗','Connecting…','Google sign-in opening')">🔵 Google</button>
+            <button class="btn btn-s btn-md" onclick="toast('🔗','Connecting…','Facebook sign-in opening')">🔷 Facebook</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PAGE 4 — PROFILE
+═══════════════════════════════════════ -->
+<div class="page" id="page-profile">
+  <div class="prof-hero">
+    <div class="prof-av">JN</div>
+    <div style="flex:1">
+      <div class="prof-name">Jean-Pierre Nkodo</div>
+      <div style="font-size:14px;color:rgba(255,255,255,.65)">jnkodo@gmail.com · Yaoundé, Centre Region</div>
+      <div class="ptags">
+        <span class="ptag">🩸 O+</span>
+        <span class="ptag">✅ Verified Donor</span>
+        <span class="ptag">🏆 9 Donations</span>
+        <span class="ptag">⭐ Top Contributor</span>
+      </div>
+      <div class="stat-bar mt20">
+        <div><div style="font-family:var(--fh);font-size:28px;font-weight:800;color:#fff">9</div><div class="slbl" style="color:rgba(255,255,255,.5)">Donations</div></div>
+        <div><div style="font-family:var(--fh);font-size:28px;font-weight:800;color:#fff">~27</div><div class="slbl" style="color:rgba(255,255,255,.5)">Lives Saved</div></div>
+        <div><div style="font-family:var(--fh);font-size:28px;font-weight:800;color:#fff">5</div><div class="slbl" style="color:rgba(255,255,255,.5)">Yrs Active</div></div>
+      </div>
+    </div>
+    <button class="btn btn-g" style="color:#fff;border-color:rgba(255,255,255,.3)" onclick="toast('✏️','Edit Mode','Profile editor opened')">✏️ Edit Profile</button>
+  </div>
+
+  <div class="prof-body" style="display:grid;grid-template-columns:310px 1fr;gap:24px;padding:36px 80px">
+    <div class="flex fc g20">
+      <div class="card cp">
+        <div style="font-family:var(--fh);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)">Personal Information</div>
+        <div class="prow"><span class="prow-l">Full Name</span><span class="prow-v">Jean-Pierre Nkodo</span></div>
+        <div class="prow"><span class="prow-l">Blood Type</span><span class="btc btc-sm">O+</span></div>
+        <div class="prow"><span class="prow-l">Date of Birth</span><span class="prow-v">3 May, 1988</span></div>
+        <div class="prow"><span class="prow-l">Phone</span><span class="prow-v">+237 677 123 456</span></div>
+        <div class="prow"><span class="prow-l">City</span><span class="prow-v">Yaoundé, Cameroon</span></div>
+        <div class="prow"><span class="prow-l">Region</span><span class="prow-v">Centre Region</span></div>
+        <div class="prow"><span class="prow-l">Weight</span><span class="prow-v">78 kg</span></div>
+        <div class="prow"><span class="prow-l">Status</span><span class="badge b-grn b-sm">Available</span></div>
+      </div>
+      <div class="card cp">
+        <div style="font-family:var(--fh);font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)">Notification Settings</div>
+        <div class="flex fc g16">
+          <div class="flex aic jb g12"><div class="flex g10 aic"><span style="font-size:18px">📧</span><div><div style="font-size:13.5px;font-weight:700;color:var(--dark)">Email Alerts</div><div style="font-size:12px;color:var(--muted)">Blood request notifications</div></div></div><button class="ttrack" onclick="toggleSw(this)"><div class="tthumb"></div></button></div>
+          <div class="flex aic jb g12"><div class="flex g10 aic"><span style="font-size:18px">📱</span><div><div style="font-size:13.5px;font-weight:700;color:var(--dark)">SMS Alerts</div><div style="font-size:12px;color:var(--muted)">Urgent text notifications</div></div></div><button class="ttrack" onclick="toggleSw(this)"><div class="tthumb"></div></button></div>
+          <div class="flex aic jb g12"><div class="flex g10 aic"><span style="font-size:18px">📍</span><div><div style="font-size:13.5px;font-weight:700;color:var(--dark)">Location Sharing</div><div style="font-size:12px;color:var(--muted)">Location-based matching</div></div></div><button class="ttrack off" onclick="toggleSw(this)"><div class="tthumb"></div></button></div>
+          <div class="flex aic jb g12"><div class="flex g10 aic"><span style="font-size:18px">🔔</span><div><div style="font-size:13.5px;font-weight:700;color:var(--dark)">Push Notifications</div><div style="font-size:12px;color:var(--muted)">Browser push alerts</div></div></div><button class="ttrack" onclick="toggleSw(this)"><div class="tthumb"></div></button></div>
+          <button class="btn btn-d btn-md btn-fw mt8" onclick="toast('💾','Saved','Settings updated successfully')">Save Changes</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex fc g20">
+      <div class="card" style="overflow:hidden">
+        <div class="flex jb aic" style="padding:18px 22px;border-bottom:1px solid var(--border)">
+          <div style="font-family:var(--fh);font-size:16px;font-weight:700">Donation History</div>
+          <button class="btn btn-s btn-sm">Export PDF</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="htbl">
+            <thead><tr><th>Date</th><th>Hospital</th><th>Type</th><th>Blood</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Feb 10, 2026</td><td>CHU de Yaoundé</td><td>Whole Blood</td><td><span class="btc btc-sm">O+</span></td><td><span class="badge b-grn b-sm">Completed</span></td></tr>
+              <tr><td>Nov 5, 2025</td><td>Hôpital Laquintinie</td><td>Platelets</td><td><span class="btc btc-sm">O+</span></td><td><span class="badge b-grn b-sm">Completed</span></td></tr>
+              <tr><td>Aug 20, 2025</td><td>CHU de Yaoundé</td><td>Whole Blood</td><td><span class="btc btc-sm">O+</span></td><td><span class="badge b-grn b-sm">Completed</span></td></tr>
+              <tr><td>May 14, 2025</td><td>Hôpital Général</td><td>Plasma</td><td><span class="btc btc-sm">O+</span></td><td><span class="badge b-grn b-sm">Completed</span></td></tr>
+              <tr><td>Feb 3, 2025</td><td>Centre Pasteur du Cameroun</td><td>Whole Blood</td><td><span class="btc btc-sm">O+</span></td><td><span class="badge b-grn b-sm">Completed</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card cp" style="background:linear-gradient(135deg,var(--r50),#fff);border-color:var(--r200)">
+        <div class="flex aic g16">
+          <span style="font-size:34px">🗓️</span>
+          <div style="flex:1"><div style="font-family:var(--fh);font-size:18px;font-weight:800;color:var(--dark)">Next Eligible Date</div><div style="font-size:14px;color:var(--muted);margin-top:3px">You can donate again on <strong style="color:var(--r600)">May 10, 2026</strong></div></div>
+          <button class="btn btn-p btn-sm" onclick="nav('appointment')">Book Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PAGE 5 — DONOR REGISTRATION
+═══════════════════════════════════════ -->
+<div class="page" id="page-donor">
+  <div class="section">
+    <div class="stag">Donor Registration</div>
+    <h2 class="stitle">Register as a Blood Donor</h2>
+    <p class="ssub mb32">Join thousands of Cameroonians saving lives. Complete your profile and be alerted when someone needs your blood type.</p>
+    <div class="donor-layout" style="display:grid;grid-template-columns:1fr 400px;gap:36px;align-items:start">
+      <div class="card cpl">
+        <div style="font-family:var(--fh);font-size:20px;font-weight:800;color:var(--dark);margin-bottom:5px">Donor Profile Form</div>
+        <p style="font-size:13.5px;color:var(--muted);margin-bottom:28px">All fields help us match you with compatible requests across Cameroon.</p>
+        <div class="g2" style="gap:16px">
+          <div class="field"><div class="flbl">First Name / Prénom</div><input class="finput" type="text" placeholder="First name"/></div>
+          <div class="field"><div class="flbl">Last Name / Nom</div><input class="finput" type="text" placeholder="Last name"/></div>
+          <div class="field"><div class="flbl">Email</div><input class="finput" type="email" placeholder="you@email.com"/></div>
+          <div class="field"><div class="flbl">Phone / Téléphone</div><input class="finput" type="tel" placeholder="+237 6XX XXX XXX"/></div>
+          <div class="field"><div class="flbl">Date of Birth</div><input class="finput" type="date"/></div>
+          <div class="field"><div class="flbl">Weight / Poids (kg)</div><input class="finput" type="number" placeholder="e.g. 70" min="50"/></div>
+          <div class="field"><div class="flbl">City / Ville</div><input class="finput" type="text" placeholder="e.g. Yaoundé, Douala, Bafoussam…"/></div>
+          <div class="field"><div class="flbl">Region</div><select class="finput fsel"><option value="">Select region</option><option>Centre</option><option>Littoral</option><option>Ouest</option><option>Nord-Ouest</option><option>Sud-Ouest</option><option>Nord</option><option>Extrême-Nord</option><option>Adamaoua</option><option>Est</option><option>Sud</option></select></div>
+          <div class="field"><div class="flbl">Nearest Hospital</div><select class="finput fsel"><option value="">Select hospital</option><option>CHU de Yaoundé</option><option>Hôpital Laquintinie Douala</option><option>Hôpital Général de Yaoundé</option><option>Centre Pasteur du Cameroun</option><option>Hôpital de District de Bafoussam</option><option>CHU de Garoua</option></select></div>
+          <div class="field"><div class="flbl">Previous Donation (optional)</div><input class="finput" type="date"/></div>
+          <div class="field s2"><div class="flbl">Blood Type / Groupe Sanguin</div><div class="btp" id="don-btp"><button class="btp-btn" onclick="pickBTP('don-btp',this)">A+</button><button class="btp-btn" onclick="pickBTP('don-btp',this)">A−</button><button class="btp-btn" onclick="pickBTP('don-btp',this)">B+</button><button class="btp-btn" onclick="pickBTP('don-btp',this)">B−</button><button class="btp-btn" onclick="pickBTP('don-btp',this)">AB+</button><button class="btp-btn" onclick="pickBTP('don-btp',this)">AB−</button><button class="btp-btn active" onclick="pickBTP('don-btp',this)">O+</button><button class="btp-btn" onclick="pickBTP('don-btp',this)">O−</button></div></div>
+          <div class="field s2"><div class="flbl">Medical Conditions (optional)</div><textarea class="finput" rows="3" placeholder="Any conditions the team should know about…"></textarea></div>
+        </div>
+        <button class="btn btn-p btn-lg btn-fw mt24" onclick="toast('❤️','Registered!','You are now part of the donor network. Welcome!');setTimeout(()=>nav('profile'),900)">❤️ Register as Donor</button>
+      </div>
+      <div class="flex fc g20">
+        <div class="card cp" style="background:linear-gradient(160deg,var(--r700),#1e0000);border:none">
+          <div style="font-family:var(--fh);font-size:18px;font-weight:800;color:#fff;margin-bottom:16px">Why Donate? / Pourquoi Donner?</div>
+          <div class="flex fc g12">
+            <div class="flex g12"><span style="font-size:18px;flex-shrink:0">❤️</span><span style="font-size:13.5px;color:rgba(255,255,255,.75);line-height:1.5">Save up to 3 lives with a single donation</span></div>
+            <div class="flex g12"><span style="font-size:18px;flex-shrink:0">🏥</span><span style="font-size:13.5px;color:rgba(255,255,255,.75);line-height:1.5">Blood cannot be manufactured — only donated by people like you</span></div>
+            <div class="flex g12"><span style="font-size:18px;flex-shrink:0">⚡</span><span style="font-size:13.5px;color:rgba(255,255,255,.75);line-height:1.5">Donation takes only 45–60 minutes in total</span></div>
+            <div class="flex g12"><span style="font-size:18px;flex-shrink:0">🎖️</span><span style="font-size:13.5px;color:rgba(255,255,255,.75);line-height:1.5">Earn recognition as a verified life-saver in Cameroon</span></div>
+            <div class="flex g12"><span style="font-size:18px;flex-shrink:0">🔔</span><span style="font-size:13.5px;color:rgba(255,255,255,.75);line-height:1.5">You are only alerted when your specific type is needed nearby</span></div>
+          </div>
+        </div>
+        <div class="card cp">
+          <div style="font-family:var(--fh);font-size:16px;font-weight:700;margin-bottom:16px">Eligibility / Conditions</div>
+          <div class="prow"><span class="prow-l">Age</span><span class="prow-v">18 – 65 years</span></div>
+          <div class="prow"><span class="prow-l">Weight</span><span class="prow-v">At least 50 kg</span></div>
+          <div class="prow"><span class="prow-l">Health</span><span class="prow-v">No major illness</span></div>
+          <div class="prow"><span class="prow-l">Frequency</span><span class="prow-v">Every 3 months</span></div>
+          <div class="prow"><span class="prow-l">ID Required</span><span class="prow-v">CNI / Passport</span></div>
+          <div class="prow"><span class="prow-l">Language</span><span class="prow-v">French & English</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PAGE 6 — FIND BLOOD
+═══════════════════════════════════════ -->
+<div class="page" id="page-find">
+  <div class="section">
+    <div class="stag">Find Blood / Trouver du Sang</div>
+    <h2 class="stitle">Search Blood Donors</h2>
+    <p class="ssub mb32">Find compatible donors across Cameroon. Availability updated every 60 seconds.</p>
+
+    <div class="card cp mb32">
+      <div class="g4" style="gap:14px;align-items:end">
+        <div class="field"><div class="flbl">Blood Type Needed</div><select class="finput fsel"><option value="">All Blood Types</option><option>A+</option><option>A−</option><option>B+</option><option>B−</option><option>AB+</option><option>AB−</option><option>O+</option><option>O−</option></select></div>
+        <div class="field"><div class="flbl">City / Région</div><input class="finput" type="text" placeholder="Yaoundé, Douala, Bafoussam…"/></div>
+        <div class="field"><div class="flbl">Urgency Level</div><select class="finput fsel"><option>All Urgency</option><option>Critical</option><option>Moderate</option><option>Stable</option></select></div>
+        <button class="btn btn-p btn-md" onclick="toast('🔍','Searching…','Finding compatible donors in your area')" style="height:46px">🔍 Search</button>
+      </div>
+    </div>
+
+    <div class="flex jb aic mb20" style="flex-wrap:wrap;gap:12px">
+      <div style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--dark)">Available Donors <span style="color:var(--r400)">(6 results)</span></div>
+      <div class="flex g10">
+        <button class="btn btn-s btn-sm" onclick="toast('🗺️','Map View','Switching to map view')">🗺️ Map View</button>
+        <button class="btn btn-s btn-sm">Sort: Distance ▾</button>
+      </div>
+    </div>
+
+    <div class="flex fc g14">
+      <div class="card ch dcard critical" style="padding:20px 22px"><div class="flex aic g16"><div class="d-av">A</div><div style="flex:1;min-width:0"><div class="flex aic g10 mb8" style="flex-wrap:wrap"><span style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--dark)">Amina Bello</span><span class="btc btc-sm">O−</span><span class="badge b-crit b-sm">Critical</span></div><div class="flex g16" style="font-size:13px;color:var(--muted);flex-wrap:wrap"><span>📍 Yaoundé</span><span>🏆 14 donations</span><span>⏰ 2 weeks ago</span><span style="color:#005820">✅ Available</span></div></div><div class="flex g10"><button class="btn btn-p btn-sm" onclick="openDonorModal('Amina Bello','O−','Yaoundé')">Details</button><button class="btn btn-s btn-sm" onclick="toast('📨','Request Sent','Amina Bello has been contacted')">Contact</button></div></div></div>
+
+      <div class="card ch dcard moderate" style="padding:20px 22px"><div class="flex aic g16"><div class="d-av">P</div><div style="flex:1;min-width:0"><div class="flex aic g10 mb8" style="flex-wrap:wrap"><span style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--dark)">Paul Mbarga</span><span class="btc btc-sm">A+</span><span class="badge b-mod b-sm">Moderate</span></div><div class="flex g16" style="font-size:13px;color:var(--muted);flex-wrap:wrap"><span>📍 Douala</span><span>🏆 6 donations</span><span>⏰ 1 month ago</span><span style="color:#005820">✅ Available</span></div></div><div class="flex g10"><button class="btn btn-p btn-sm" onclick="openDonorModal('Paul Mbarga','A+','Douala')">Details</button><button class="btn btn-s btn-sm" onclick="toast('📨','Request Sent','Paul Mbarga has been contacted')">Contact</button></div></div></div>
+
+      <div class="card ch dcard stable" style="padding:20px 22px"><div class="flex aic g16"><div class="d-av">C</div><div style="flex:1;min-width:0"><div class="flex aic g10 mb8" style="flex-wrap:wrap"><span style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--dark)">Christelle Fono</span><span class="btc btc-sm">B+</span><span class="badge b-stab b-sm">Stable</span></div><div class="flex g16" style="font-size:13px;color:var(--muted);flex-wrap:wrap"><span>📍 Bafoussam</span><span>🏆 9 donations</span><span>⏰ 3 months ago</span><span style="color:#005820">✅ Available</span></div></div><div class="flex g10"><button class="btn btn-p btn-sm" onclick="openDonorModal('Christelle Fono','B+','Bafoussam')">Details</button><button class="btn btn-s btn-sm" onclick="toast('📨','Request Sent','Christelle Fono has been contacted')">Contact</button></div></div></div>
+
+      <div class="card ch dcard critical" style="padding:20px 22px"><div class="flex aic g16"><div class="d-av">E</div><div style="flex:1;min-width:0"><div class="flex aic g10 mb8" style="flex-wrap:wrap"><span style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--dark)">Emmanuel Tabi</span><span class="btc btc-sm">AB−</span><span class="badge b-crit b-sm">Critical</span></div><div class="flex g16" style="font-size:13px;color:var(--muted);flex-wrap:wrap"><span>📍 Yaoundé</span><span>🏆 4 donations</span><span>⏰ 5 weeks ago</span><span style="color:#005820">✅ Available</span></div></div><div class="flex g10"><button class="btn btn-p btn-sm" onclick="openDonorModal('Emmanuel Tabi','AB−','Yaoundé')">Details</button><button class="btn btn-s btn-sm" onclick="toast('📨','Request Sent','Emmanuel Tabi has been contacted')">Contact</button></div></div></div>
+
+      <div class="card ch dcard moderate" style="padding:20px 22px"><div class="flex aic g16"><div class="d-av">M</div><div style="flex:1;min-width:0"><div class="flex aic g10 mb8" style="flex-wrap:wrap"><span style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--dark)">Marie Njoya</span><span class="btc btc-sm">O+</span><span class="badge b-mod b-sm">Moderate</span></div><div class="flex g16" style="font-size:13px;color:var(--muted);flex-wrap:wrap"><span>📍 Douala</span><span>🏆 11 donations</span><span>⏰ 6 weeks ago</span><span style="color:#005820">✅ Available</span></div></div><div class="flex g10"><button class="btn btn-p btn-sm" onclick="openDonorModal('Marie Njoya','O+','Douala')">Details</button><button class="btn btn-s btn-sm" onclick="toast('📨','Request Sent','Marie Njoya has been contacted')">Contact</button></div></div></div>
+
+      <div class="card ch dcard stable" style="padding:20px 22px"><div class="flex aic g16"><div class="d-av">S</div><div style="flex:1;min-width:0"><div class="flex aic g10 mb8" style="flex-wrap:wrap"><span style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--dark)">Samuel Essomba</span><span class="btc btc-sm">A−</span><span class="badge b-stab b-sm">Stable</span></div><div class="flex g16" style="font-size:13px;color:var(--muted);flex-wrap:wrap"><span>📍 Yaoundé</span><span>🏆 7 donations</span><span>⏰ 2 months ago</span><span style="color:#005820">✅ Available</span></div></div><div class="flex g10"><button class="btn btn-p btn-sm" onclick="openDonorModal('Samuel Essomba','A−','Yaoundé')">Details</button><button class="btn btn-s btn-sm" onclick="toast('📨','Request Sent','Samuel Essomba has been contacted')">Contact</button></div></div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PAGE 7 — HOSPITAL
+═══════════════════════════════════════ -->
+<div class="page" id="page-hospital">
+  <div class="section">
+    <div class="stag">Hospital Network</div>
+    <h2 class="stitle">Partner Hospitals in Cameroon</h2>
+    <p class="ssub mb32">Browse registered hospitals and blood banks across all regions. Contact directly and book appointments.</p>
+    <div class="hosp-layout" style="display:grid;grid-template-columns:1fr 360px;gap:32px;align-items:start">
+      <div class="flex fc g16">
+
+        <div class="card ch cp"><div class="flex jb" style="margin-bottom:14px;flex-wrap:wrap;gap:10px"><div class="flex aic g12"><span style="font-size:32px">🏥</span><div><div style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--dark)">CHU de Yaoundé</div><div style="font-size:13px;color:var(--muted)">📍 Yaoundé · Centre Region · Government</div></div></div><span class="badge b-grn">Open 24/7</span></div><div class="flex g8 mb14" style="flex-wrap:wrap"><span class="badge b-red">✓ Blood Bank</span><span class="badge b-red">✓ Transfusion</span><span class="badge b-red">✓ Apheresis</span><span class="badge b-red">✓ Testing</span></div><div style="font-size:13px;color:var(--muted);margin-bottom:6px">📞 +237 222 231 800 &nbsp;·&nbsp; ⭐ 4.8</div><div style="font-size:13px;color:var(--muted);margin-bottom:14px">📌 Rue Henri Dunant, Yaoundé</div><div class="flex g10"><button class="btn btn-p btn-sm" onclick="toast('📞','Calling…','Dialling CHU de Yaoundé')">Contact</button><button class="btn btn-s btn-sm" onclick="toast('🗺️','Map','Opening map')">View on Map</button><button class="btn btn-s btn-sm" onclick="nav('appointment')">Book Appointment</button></div></div>
+
+        <div class="card ch cp"><div class="flex jb" style="margin-bottom:14px;flex-wrap:wrap;gap:10px"><div class="flex aic g12"><span style="font-size:32px">🏥</span><div><div style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--dark)">Hôpital Laquintinie Douala</div><div style="font-size:13px;color:var(--muted)">📍 Douala · Littoral Region · Government</div></div></div><span class="badge b-grn">Open 24/7</span></div><div class="flex g8 mb14" style="flex-wrap:wrap"><span class="badge b-red">✓ Blood Bank</span><span class="badge b-red">✓ Transfusion</span><span class="badge b-red">✓ Testing</span></div><div style="font-size:13px;color:var(--muted);margin-bottom:6px">📞 +237 233 426 055 &nbsp;·&nbsp; ⭐ 4.6</div><div style="font-size:13px;color:var(--muted);margin-bottom:14px">📌 Rue Joffre, Douala</div><div class="flex g10"><button class="btn btn-p btn-sm" onclick="toast('📞','Calling…','Dialling Hôpital Laquintinie')">Contact</button><button class="btn btn-s btn-sm" onclick="toast('🗺️','Map','Opening map')">View on Map</button><button class="btn btn-s btn-sm" onclick="nav('appointment')">Book Appointment</button></div></div>
+
+        <div class="card ch cp"><div class="flex jb" style="margin-bottom:14px;flex-wrap:wrap;gap:10px"><div class="flex aic g12"><span style="font-size:32px">🩸</span><div><div style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--dark)">Centre Pasteur du Cameroun</div><div style="font-size:13px;color:var(--muted)">📍 Yaoundé · Centre Region · Research</div></div></div><span class="badge b-grn">Open</span></div><div class="flex g8 mb14" style="flex-wrap:wrap"><span class="badge b-red">✓ Blood Bank</span><span class="badge b-red">✓ Lab Testing</span><span class="badge b-red">✓ Storage</span><span class="badge b-red">✓ Research</span></div><div style="font-size:13px;color:var(--muted);margin-bottom:6px">📞 +237 222 231 009 &nbsp;·&nbsp; ⭐ 4.9</div><div style="font-size:13px;color:var(--muted);margin-bottom:14px">📌 Rue Henri Dunant, Yaoundé</div><div class="flex g10"><button class="btn btn-p btn-sm" onclick="toast('📞','Calling…','Dialling Centre Pasteur')">Contact</button><button class="btn btn-s btn-sm" onclick="toast('🗺️','Map','Opening map')">View on Map</button><button class="btn btn-s btn-sm" onclick="nav('appointment')">Book Appointment</button></div></div>
+
+        <div class="card ch cp"><div class="flex jb" style="margin-bottom:14px;flex-wrap:wrap;gap:10px"><div class="flex aic g12"><span style="font-size:32px">🏥</span><div><div style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--dark)">Hôpital Général de Yaoundé</div><div style="font-size:13px;color:var(--muted)">📍 Yaoundé · Centre Region · Government</div></div></div><span class="badge b-grn">Open 24/7</span></div><div class="flex g8 mb14"><span class="badge b-red">✓ Blood Bank</span><span class="badge b-red">✓ Transfusion</span></div><div style="font-size:13px;color:var(--muted);margin-bottom:6px">📞 +237 222 202 488 &nbsp;·&nbsp; ⭐ 4.5</div><div style="font-size:13px;color:var(--muted);margin-bottom:14px">📌 Av. Charles de Gaulle, Yaoundé</div><div class="flex g10"><button class="btn btn-p btn-sm" onclick="toast('📞','Calling…','Dialling Hôpital Général')">Contact</button><button class="btn btn-s btn-sm" onclick="toast('🗺️','Map','Opening map')">View on Map</button><button class="btn btn-s btn-sm" onclick="nav('appointment')">Book Appointment</button></div></div>
+
+        <div class="card ch cp"><div class="flex jb" style="margin-bottom:14px;flex-wrap:wrap;gap:10px"><div class="flex aic g12"><span style="font-size:32px">🏥</span><div><div style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--dark)">CHU de Garoua</div><div style="font-size:13px;color:var(--muted)">📍 Garoua · Nord Region · Government</div></div></div><span class="badge b-grn">Open</span></div><div class="flex g8 mb14"><span class="badge b-red">✓ Blood Bank</span><span class="badge b-red">✓ Transfusion</span></div><div style="font-size:13px;color:var(--muted);margin-bottom:6px">📞 +237 222 271 064 &nbsp;·&nbsp; ⭐ 4.3</div><div style="font-size:13px;color:var(--muted);margin-bottom:14px">📌 Garoua, Nord Region</div><div class="flex g10"><button class="btn btn-p btn-sm" onclick="toast('📞','Calling…','Dialling CHU de Garoua')">Contact</button><button class="btn btn-s btn-sm" onclick="toast('🗺️','Map','Opening map')">View on Map</button><button class="btn btn-s btn-sm" onclick="nav('appointment')">Book Appointment</button></div></div>
+
+      </div>
+
+      <!-- Sticky Map -->
+      <div style="position:sticky;top:84px">
+        <div style="font-family:var(--fh);font-size:16px;font-weight:700;margin-bottom:13px">Hospital Locations — Cameroon 🇨🇲</div>
+        <div class="map-box">
+          <div class="map-lines"></div>
+          <div class="mpin" style="top:45%;left:40%"><div class="mpinl">YDE</div></div>
+          <div class="mpin" style="top:60%;left:22%"><div class="mpinl">DLA</div></div>
+          <div class="mpin" style="top:38%;left:30%"><div class="mpinl">BFM</div></div>
+          <div class="mpin" style="top:18%;left:45%"><div class="mpinl">GRO</div></div>
+          <div class="mpin" style="top:45%;left:55%"><div class="mpinl">CPC</div></div>
+          <div class="map-legend">
+            <div style="font-size:11.5px;font-weight:800;color:var(--dark);margin-bottom:8px">Legend</div>
+            <div class="flex aic g8" style="font-size:12px;color:var(--dark);margin-bottom:5px"><div style="width:10px;height:10px;border-radius:50%;background:var(--r500);flex-shrink:0"></div>Hospital</div>
+            <div class="flex aic g8" style="font-size:12px;color:var(--dark)"><div style="width:10px;height:10px;border-radius:50%;background:#0055cc;flex-shrink:0"></div>Blood Bank</div>
+          </div>
+          <div style="position:absolute;bottom:52px;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none">
+            <div style="font-size:11px;color:rgba(255,255,255,.25);line-height:1.6">Connect Google Maps API<br>for live Cameroon location data</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PAGE 8 — APPOINTMENT
+═══════════════════════════════════════ -->
+<div class="page" id="page-appointment">
+  <div class="section">
+    <div class="stag">Scheduling / Planification</div>
+    <h2 class="stitle">Book an Appointment</h2>
+    <p class="ssub mb32">Schedule your blood donation or transfusion at any partner hospital across Cameroon.</p>
+
+    <div class="appt-layout" style="display:grid;grid-template-columns:1fr 360px;gap:32px;align-items:start">
+      <div class="card cpl">
+        <div style="font-family:var(--fh);font-size:20px;font-weight:800;color:var(--dark);margin-bottom:26px">New Appointment</div>
+
+        <div class="appt-step">
+          <div class="astep-ic">👤</div>
+          <div style="flex:1">
+            <div class="astep-t">1. Select Your Role</div>
+            <div class="role-picker" id="rp-appt">
+              <div class="ropt active" onclick="pickRole('rp-appt',this)"><div class="ropt-icon">❤️</div>I'm a Donor</div>
+              <div class="ropt" onclick="pickRole('rp-appt',this)"><div class="ropt-icon">🩸</div>I Need Blood</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="appt-step">
+          <div class="astep-ic">🏥</div>
+          <div style="flex:1">
+            <div class="astep-t">2. Select Hospital</div>
+            <select class="finput fsel">
+              <option>CHU de Yaoundé</option>
+              <option>Hôpital Laquintinie Douala</option>
+              <option>Centre Pasteur du Cameroun</option>
+              <option>Hôpital Général de Yaoundé</option>
+              <option>CHU de Garoua</option>
+              <option>Hôpital de District de Bafoussam</option>
+            </select>
+            <div style="font-size:13px;color:var(--muted);margin-top:8px">📍 Rue Henri Dunant, Yaoundé &nbsp;·&nbsp; ⏰ Open 24/7 &nbsp;·&nbsp; 📞 +237 222 231 800</div>
+          </div>
+        </div>
+
+        <div class="appt-step">
+          <div class="astep-ic">📅</div>
+          <div style="flex:1">
+            <div class="astep-t">3. Date &amp; Time</div>
+            <div class="g2" style="gap:14px">
+              <div class="field"><div class="flbl">Date</div><input class="finput" id="appt-date" type="date"/></div>
+              <div class="field"><div class="flbl">Time Slot</div><select class="finput fsel"><option>08:00 AM</option><option>09:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>01:00 PM</option><option>02:00 PM</option><option>03:00 PM</option><option>04:00 PM</option></select></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="appt-step">
+          <div class="astep-ic">🩸</div>
+          <div style="flex:1">
+            <div class="astep-t">4. Donation Type</div>
+            <div class="dt-grid" id="dt-grid">
+              <div class="dt-btn active" onclick="pickDT(this)"><div class="di">💉</div><div class="dl">Whole Blood</div></div>
+              <div class="dt-btn" onclick="pickDT(this)"><div class="di">🧪</div><div class="dl">Plasma</div></div>
+              <div class="dt-btn" onclick="pickDT(this)"><div class="di">🔬</div><div class="dl">Platelets</div></div>
+              <div class="dt-btn" onclick="pickDT(this)"><div class="di">🫀</div><div class="dl">Red Cells</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="appt-step">
+          <div class="astep-ic">📝</div>
+          <div style="flex:1">
+            <div class="astep-t">5. Notes (optional)</div>
+            <textarea class="finput" rows="2" placeholder="Special requests, medical notes, language preference (FR/EN)…"></textarea>
+          </div>
+        </div>
+
+        <button class="btn btn-p btn-lg btn-fw mt16" onclick="toast('📅','Appointment Booked!','Your appointment has been confirmed. You will receive an SMS shortly.')">✅ Confirm Appointment</button>
+      </div>
+
+      <div class="flex fc g16">
+        <div style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--dark)">Upcoming Appointments</div>
+
+        <div class="card ch" style="display:flex;gap:14px;padding:16px 18px">
+          <div style="background:var(--r100);border-radius:11px;padding:11px 13px;text-align:center;flex-shrink:0"><div style="font-family:var(--fh);font-size:19px;font-weight:800;color:var(--r700)">9:00</div><div style="font-size:10.5px;color:var(--muted);font-weight:700">AM</div></div>
+          <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:14px;color:var(--dark);margin-bottom:3px">CHU de Yaoundé</div><div style="font-size:12.5px;color:var(--muted)">Apr 5, 2026 · Whole Blood</div><span class="badge b-grn b-sm" style="margin-top:6px;display:inline-flex">Confirmed</span></div>
+          <button class="btn btn-s btn-sm" onclick="toast('❌','Cancelled','Appointment removed')">Cancel</button>
+        </div>
+
+        <div class="card ch" style="display:flex;gap:14px;padding:16px 18px">
+          <div style="background:var(--r100);border-radius:11px;padding:11px 13px;text-align:center;flex-shrink:0"><div style="font-family:var(--fh);font-size:19px;font-weight:800;color:var(--r700)">2:00</div><div style="font-size:10.5px;color:var(--muted);font-weight:700">PM</div></div>
+          <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:14px;color:var(--dark);margin-bottom:3px">Centre Pasteur du Cameroun</div><div style="font-size:12.5px;color:var(--muted)">May 2, 2026 · Platelet Donation</div><span class="badge b-mod b-sm" style="margin-top:6px;display:inline-flex">Pending</span></div>
+          <button class="btn btn-s btn-sm" onclick="toast('❌','Cancelled','Appointment removed')">Cancel</button>
+        </div>
+
+        <div class="card cp" style="background:var(--r50);border-color:var(--r200)">
+          <div style="font-family:var(--fh);font-size:15px;font-weight:700;color:var(--dark);margin-bottom:13px">📍 Hospital Address</div>
+          <div style="font-size:13.5px;color:var(--muted);line-height:1.75">
+            <strong style="color:var(--dark)">CHU de Yaoundé</strong><br>
+            Rue Henri Dunant<br>
+            Yaoundé, Centre Region<br>
+            Cameroon 00237<br><br>
+            <strong>📞</strong> +237 222 231 800<br>
+            <strong>⏰</strong> Open 24h / 7 days a week<br>
+            <strong>🗣️</strong> French &amp; English staff
+          </div>
+          <button class="btn btn-d btn-sm" style="margin-top:14px" onclick="toast('🗺️','Directions','Opening Google Maps for CHU de Yaoundé')">Get Directions</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PAGE 9 — NOTIFICATIONS
+═══════════════════════════════════════ -->
+<div class="page" id="page-notif">
+  <div class="section">
+    <div class="flex jb" style="align-items:flex-start;margin-bottom:32px;flex-wrap:wrap;gap:16px">
+      <div>
+        <div class="stag">Notifications</div>
+        <h2 class="stitle">Your Notifications</h2>
+        <p class="ssub">Stay up-to-date with blood requests, matches, and appointment alerts across Cameroon.</p>
+      </div>
+      <div class="flex g10">
+        <button class="btn btn-s btn-sm" onclick="markAllRead()">✓ Mark All Read</button>
+        <button class="btn btn-s btn-sm">🔕 Mute Alerts</button>
+      </div>
+    </div>
+
+    <div class="ntabs mb0">
+      <button class="ntab active" onclick="setNTab(this)">All</button>
+      <button class="ntab" onclick="setNTab(this)">Urgent Requests</button>
+      <button class="ntab" onclick="setNTab(this)">Appointments</button>
+      <button class="ntab" onclick="setNTab(this)">Matches</button>
+      <button class="ntab" onclick="setNTab(this)">System</button>
+    </div>
+
+    <div class="card" style="border-radius:0 16px 16px 16px;overflow:hidden">
+
+      <div class="ni unread" onclick="readNI(this)">
+        <div class="ni-ic ni-urg">🚨</div>
+        <div style="flex:1;min-width:0">
+          <div class="ni-title">URGENT: O− Blood Needed — CHU Yaoundé<div class="ni-pip"></div></div>
+          <div class="ni-msg">CHU de Yaoundé urgently needs O− blood for a patient in emergency surgery. 2 units required immediately. Please respond now.</div>
+          <div class="flex g8 mt12">
+            <button class="btn btn-p btn-sm" onclick="toast('🩸','Responding','You are being connected to CHU de Yaoundé');event.stopPropagation()">Respond Now</button>
+            <button class="btn btn-s btn-sm" onclick="event.stopPropagation()">View Details</button>
+          </div>
+        </div>
+        <div class="ni-time">5 min ago</div>
+      </div>
+
+      <div class="ni unread" onclick="readNI(this)">
+        <div class="ni-ic ni-urg">🩸</div>
+        <div style="flex:1;min-width:0">
+          <div class="ni-title">Critical Request — AB− Needed in Douala<div class="ni-pip"></div></div>
+          <div class="ni-msg">Hôpital Laquintinie needs AB− blood urgently for a 9-year-old. Your blood type matches. Please respond as soon as possible.</div>
+          <div class="flex g8 mt12">
+            <button class="btn btn-p btn-sm" onclick="toast('🩸','Responding','Connecting you now');event.stopPropagation()">Respond Now</button>
+            <button class="btn btn-s btn-sm" onclick="event.stopPropagation()">View Details</button>
+          </div>
+        </div>
+        <div class="ni-time">22 min ago</div>
+      </div>
+
+      <div class="ni unread" onclick="readNI(this)">
+        <div class="ni-ic ni-suc">✅</div>
+        <div style="flex:1;min-width:0">
+          <div class="ni-title">Appointment Confirmed — CHU de Yaoundé<div class="ni-pip"></div></div>
+          <div class="ni-msg">Your donation appointment on April 5, 2026 at 9:00 AM at CHU de Yaoundé has been confirmed. Please arrive 10 minutes early.</div>
+        </div>
+        <div class="ni-time">1 hr ago</div>
+      </div>
+
+      <div class="ni" onclick="readNI(this)">
+        <div class="ni-ic ni-sys">🎯</div>
+        <div style="flex:1;min-width:0">
+          <div class="ni-title">New Match Found in Yaoundé!</div>
+          <div class="ni-msg">Your blood type O+ matches a request from Marie Njoya in Douala. She needs 2 units. Respond now to make a connection.</div>
+        </div>
+        <div class="ni-time">3 hrs ago</div>
+      </div>
+
+      <div class="ni" onclick="readNI(this)">
+        <div class="ni-ic ni-inf">📅</div>
+        <div style="flex:1;min-width:0">
+          <div class="ni-title">Appointment Reminder</div>
+          <div class="ni-msg">You have a donation appointment tomorrow at Centre Pasteur du Cameroun at 2:00 PM. Stay hydrated and eat a light meal beforehand.</div>
+        </div>
+        <div class="ni-time">5 hrs ago</div>
+      </div>
+
+      <div class="ni" onclick="readNI(this)">
+        <div class="ni-ic ni-suc">⭐</div>
+        <div style="flex:1;min-width:0">
+          <div class="ni-title">Achievement Unlocked — 9 Donations!</div>
+          <div class="ni-msg">Félicitations! You've completed 9 donations and earned the 'Hero of Cameroon' badge. Your donations have saved an estimated 27 lives.</div>
+        </div>
+        <div class="ni-time">2 days ago</div>
+      </div>
+
+      <div class="ni" onclick="readNI(this)">
+        <div class="ni-ic ni-sys">🔔</div>
+        <div style="flex:1;min-width:0">
+          <div class="ni-title">Profile Verified</div>
+          <div class="ni-msg">Your donor profile has been verified by our medical team. You are now visible to all partner hospitals across Cameroon.</div>
+        </div>
+        <div class="ni-time">3 days ago</div>
+      </div>
+
+      <div class="ni" onclick="readNI(this)">
+        <div class="ni-ic ni-inf">💉</div>
+        <div style="flex:1;min-width:0">
+          <div class="ni-title">Next Eligible to Donate</div>
+          <div class="ni-msg">Bonne nouvelle! You are eligible to donate again on May 10, 2026. Book your appointment early to secure a slot at CHU de Yaoundé.</div>
+        </div>
+        <div class="ni-time">1 week ago</div>
+      </div>
+
+    </div>
+
+    <!-- Preferences -->
+    <div class="card cp mt24">
+      <div style="font-family:var(--fh);font-size:16px;font-weight:700;margin-bottom:18px">Notification Preferences</div>
+      <div class="g2" style="gap:14px">
+        <div class="card flex aic jb g12 cp" style="box-shadow:none"><div class="flex g10 aic"><span style="font-size:18px">🚨</span><div><div style="font-size:13.5px;font-weight:700;color:var(--dark)">Urgent Blood Requests</div><div style="font-size:12px;color:var(--muted)">Critical alerts matching your type</div></div></div><button class="ttrack" onclick="toggleSw(this)"><div class="tthumb"></div></button></div>
+        <div class="card flex aic jb g12 cp" style="box-shadow:none"><div class="flex g10 aic"><span style="font-size:18px">📅</span><div><div style="font-size:13.5px;font-weight:700;color:var(--dark)">Appointment Reminders</div><div style="font-size:12px;color:var(--muted)">24hr and 1hr reminders via SMS</div></div></div><button class="ttrack" onclick="toggleSw(this)"><div class="tthumb"></div></button></div>
+        <div class="card flex aic jb g12 cp" style="box-shadow:none"><div class="flex g10 aic"><span style="font-size:18px">🎯</span><div><div style="font-size:13.5px;font-weight:700;color:var(--dark)">Match Notifications</div><div style="font-size:12px;color:var(--muted)">When your type matches a request</div></div></div><button class="ttrack" onclick="toggleSw(this)"><div class="tthumb"></div></button></div>
+        <div class="card flex aic jb g12 cp" style="box-shadow:none"><div class="flex g10 aic"><span style="font-size:18px">📊</span><div><div style="font-size:13.5px;font-weight:700;color:var(--dark)">Weekly Summary</div><div style="font-size:12px;color:var(--muted)">Digest of your weekly impact</div></div></div><button class="ttrack off" onclick="toggleSw(this)"><div class="tthumb"></div></button></div>
+      </div>
+      <button class="btn btn-p btn-md mt20" onclick="toast('💾','Saved','Notification preferences updated successfully')">Save Preferences</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     JAVASCRIPT — No template literals, no bugs
+═══════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ── Page & nav registry ── */
+var ALL_PAGES = ['home','register','login','profile','donor','find','hospital','appointment','notif'];
+var NAV_IDS   = {home:'nb-home',find:'nb-find',donor:'nb-donor',hospital:'nb-hospital',appointment:'nb-appointment',notif:'nb-notif',register:'nb-register'};
+var DOT_ORDER = ['home','find','donor','hospital','appointment','notif','profile'];
+
+/* ── Navigation ── */
+function nav(id) {
+  ALL_PAGES.forEach(function(p) {
+    var el = document.getElementById('page-' + p);
+    if (el) el.classList.remove('active');
+  });
+  document.querySelectorAll('.nb').forEach(function(b) { b.classList.remove('active'); });
+  var pg = document.getElementById('page-' + id);
+  if (pg) pg.classList.add('active');
+  var nb = document.getElementById(NAV_IDS[id]);
+  if (nb) nb.classList.add('active');
+  document.querySelectorAll('.pdot').forEach(function(d, i) {
+    d.classList.toggle('active', DOT_ORDER[i] === id);
+  });
+  window.scrollTo(0, 0);
+  // Close mobile menu
+  document.getElementById('mob-menu').classList.remove('open');
+}
+
+/* ── Scroll ── */
+window.addEventListener('scroll', function() {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+/* ── Mobile menu ── */
+function toggleMob() {
+  document.getElementById('mob-menu').classList.toggle('open');
+}
+
+/* ── Toast ── */
+function toast(icon, title, msg) {
+  var wrap = document.getElementById('toast-wrap');
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML =
+    '<span class="t-icon">' + icon + '</span>' +
+    '<div style="flex:1"><div class="t-title">' + title + '</div>' +
+    (msg ? '<div class="t-msg">' + msg + '</div>' : '') + '</div>' +
+    '<span class="t-x" onclick="this.parentElement.remove()">×</span>';
+  wrap.appendChild(t);
+  setTimeout(function() {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(28px)';
+    setTimeout(function() { if (t.parentNode) t.remove(); }, 320);
+  }, 4200);
+}
+
+/* ── Modal ── */
+function openModal(html) {
+  document.getElementById('modal-cnt').innerHTML = html;
+  document.getElementById('modal-bg').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-bg').classList.remove('open');
+}
+function bgClick(e) {
+  if (e.target === document.getElementById('modal-bg')) closeModal();
+}
+
+function openDonorModal(name, bt, city) {
+  var initials = name.split(' ').map(function(n) { return n[0]; }).join('');
+  openModal(
+    '<h3 style="font-family:var(--fh);font-size:22px;font-weight:800;margin-bottom:6px">Donor Details</h3>' +
+    '<p style="font-size:13px;color:var(--muted);margin-bottom:22px">Full profile for this blood donor</p>' +
+    '<div class="flex aic g16 mb20">' +
+    '<div class="d-av" style="width:58px;height:58px;font-size:22px">' + initials + '</div>' +
+    '<div style="flex:1"><div style="font-family:var(--fh);font-size:20px;font-weight:800">' + name + '</div>' +
+    '<div style="font-size:13px;color:var(--muted)">Verified Donor · ' + city + ', Cameroon</div></div>' +
+    '<span class="btc">' + bt + '</span></div>' +
+    '<div class="card" style="padding:0;overflow:hidden;margin-bottom:22px">' +
+    '<div class="prow" style="padding:12px 16px"><span class="prow-l">Blood Type</span><span class="btc btc-sm">' + bt + '</span></div>' +
+    '<div class="prow" style="padding:12px 16px"><span class="prow-l">Location</span><span class="prow-v">' + city + ', Cameroon</span></div>' +
+    '<div class="prow" style="padding:12px 16px"><span class="prow-l">Total Donations</span><span class="prow-v">8</span></div>' +
+    '<div class="prow" style="padding:12px 16px"><span class="prow-l">Last Donated</span><span class="prow-v">2 weeks ago</span></div>' +
+    '<div class="prow" style="padding:12px 16px"><span class="prow-l">Status</span><span class="badge b-grn">Available</span></div>' +
+    '<div class="prow" style="padding:12px 16px;border:none"><span class="prow-l">Verified</span><span class="prow-v">✓ Identity &amp; Health Verified</span></div></div>' +
+    '<div class="flex g12">' +
+    '<button class="btn btn-p btn-md fw" onclick="toast(\'📨\',\'Request Sent\',\'' + name + ' has been notified\');closeModal()">Request Donation</button>' +
+    '<button class="btn btn-s btn-md fw" onclick="toast(\'💬\',\'Message Sent\',\'Your message was delivered\');closeModal()">Send Message</button></div>'
+  );
+}
+
+/* ── Blood type grid ── */
+var BT_TEXTS = {
+  'A+':  'A+ donors give to <strong style="color:var(--r300)">A+ and AB+</strong>. With 840 active donors across Cameroon, this is a very common type.',
+  'A−':  'A− donors give to <strong style="color:var(--r300)">A+, A−, AB+, AB−</strong>. Universal plasma donor. 210 donors currently available.',
+  'B+':  'B+ donors give to <strong style="color:var(--r300)">B+ and AB+</strong>. 650 active donors available across the network.',
+  'B−':  'B− donors give to <strong style="color:var(--r300)">B+, B−, AB+, AB−</strong>. Rare type — only 120 donors available in Cameroon.',
+  'AB+': 'AB+ is the <strong style="color:var(--r300)">Universal Recipient</strong> — can receive blood from all types. 390 active donors.',
+  'AB−': 'AB− donors give to <strong style="color:var(--r300)">AB+ and AB−</strong>. Very rare — only 54 donors. Also a universal plasma donor.',
+  'O+':  'O+ is the <strong style="color:var(--r300)">most common type in Cameroon</strong> — donates to all positive types. 1,320 donors available.',
+  'O−':  'O− is the <strong style="color:var(--r300)">Universal Donor</strong> — compatible with every blood type. Only 280 donors — critically needed!'
+};
+function selBT(el, type) {
+  document.querySelectorAll('.bt-cell').forEach(function(c) { c.classList.remove('sel'); });
+  el.classList.add('sel');
+  var box = document.getElementById('bt-info');
+  if (box) box.innerHTML = '<strong style="color:#fff">' + type + '</strong> — ' + (BT_TEXTS[type] || '');
+}
+
+/* ── Blood type picker (forms) ── */
+function pickBTP(groupId, el) {
+  document.querySelectorAll('#' + groupId + ' .btp-btn').forEach(function(b) { b.classList.remove('active'); });
+  el.classList.add('active');
+}
+
+/* ── Role picker ── */
+function pickRole(groupId, el) {
+  var g = document.getElementById(groupId);
+  if (!g) return;
+  g.querySelectorAll('.ropt').forEach(function(o) { o.classList.remove('active'); });
+  el.classList.add('active');
+  // On register page: hide blood type field for hospitals
+  if (groupId === 'rp-reg') {
+    var wrap = document.getElementById('reg-bt-wrap');
+    if (wrap) {
+      var txt = el.innerText || el.textContent;
+      wrap.style.display = txt.indexOf('Hospital') > -1 ? 'none' : '';
+    }
+  }
+}
+
+/* ── Donation type picker ── */
+function pickDT(el) {
+  document.querySelectorAll('#dt-grid .dt-btn').forEach(function(b) { b.classList.remove('active'); });
+  el.classList.add('active');
+}
+
+/* ── Toggle switch ── */
+function toggleSw(el) { el.classList.toggle('off'); }
+
+/* ── Auth actions ── */
+function doRegister() {
+  var name  = document.getElementById('reg-name');
+  var email = document.getElementById('reg-email');
+  var pass  = document.getElementById('reg-pass');
+  if (!name || !name.value.trim())  { toast('⚠️', 'Missing name', 'Please enter your full name'); return; }
+  if (!email || !email.value.trim()){ toast('⚠️', 'Missing email', 'Please enter your email address'); return; }
+  if (!pass  || pass.value.length < 6){ toast('⚠️', 'Weak password', 'Password must be at least 6 characters'); return; }
+  toast('🎉', 'Account Created!', 'Welcome to HaemoLink Cameroon!');
+  setTimeout(function() { nav('profile'); }, 900);
+}
+
+function doLogin() {
+  var email = document.getElementById('login-email');
+  var pass  = document.getElementById('login-pass');
+  if (!email || !email.value.trim()){ toast('⚠️', 'Missing email', 'Please enter your email'); return; }
+  if (!pass  || !pass.value.trim()) { toast('⚠️', 'Missing password', 'Please enter your password'); return; }
+  toast('✅', 'Signed In', 'Welcome back to HaemoLink Cameroon!');
+  document.getElementById('npip').style.display = 'block';
+  setTimeout(function() { nav('profile'); }, 900);
+}
+
+/* ── Notifications ── */
+function setNTab(el) {
+  document.querySelectorAll('.ntab').forEach(function(t) { t.classList.remove('active'); });
+  el.classList.add('active');
+}
+function markAllRead() {
+  document.querySelectorAll('.ni.unread').forEach(function(i) { i.classList.remove('unread'); });
+  document.querySelectorAll('.ni-pip').forEach(function(p) { p.remove(); });
+  document.getElementById('npip').style.display = 'none';
+  toast('✓', 'All Read', 'All notifications marked as read');
+}
+function readNI(el) {
+  el.classList.remove('unread');
+  var p = el.querySelector('.ni-pip');
+  if (p) p.remove();
+}
+
+/* ── Animated counters ── */
+function animCount(id, target) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var cur = 0, step = Math.ceil(target / 60);
+  var t = setInterval(function() {
+    cur = Math.min(cur + step, target);
+    el.textContent = cur.toLocaleString();
+    if (cur >= target) clearInterval(t);
+  }, 22);
+}
+
+/* ── Init ── */
+(function init() {
+  // Default appointment date = tomorrow
+  var d = new Date();
+  d.setDate(d.getDate() + 1);
+  var ad = document.getElementById('appt-date');
+  if (ad) ad.value = d.toISOString().split('T')[0];
+
+  // Run counters
+  setTimeout(function() {
+    animCount('cnt-d', 3864);
+    animCount('cnt-l', 9200);
+    animCount('cnt-h', 48);
+  }, 350);
+})();
+</script>
+</body>
+</html>
